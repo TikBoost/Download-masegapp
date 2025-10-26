@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أبلكيشن الققبض يومي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --accent: #6366f1;
+            --accent-2: #06b6d4;
+            --bg: #0f172a;
+        }
+        
+        html, body {
+            font-family: 'Cairo', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: linear-gradient(180deg, #0f172a 0%, #071033 100%);
+            color: #e6eef8;
+            scroll-behavior: smooth;
+        }
+        
+        /* Glass card */
+        .glass {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        
+        /* subtle animated dot */
+        .pulse-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.18);
+            animation: pulse 1.8s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(.8); opacity: .7; }
+            50% { transform: scale(1.12); opacity: 1; }
+            100% { transform: scale(.8); opacity: .7; }
+        }
+        
+        /* Animated coins (css) */
+        .coin {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff8c6, #f59e0b);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #7a4700;
+            transform-origin: center;
+        }
+        
+        .coin.fly {
+            animation: flyUp 1s ease-out forwards;
+        }
+        
+        @keyframes flyUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-90px) scale(.8); opacity: 0; }
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* Floating animation */
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
+        
+        /* Progress bar animation */
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            transition: width 0.3s ease;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--accent);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* small responsive tweaks */
+        @media (min-width: 1024px) {
+            .hero-left {
+                padding: 48px;
+            }
+        }
+        
+        /* make modals centered nicely for RTL */
+        .modal-backdrop {
+            background: linear-gradient(90deg, rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.85));
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- الهيدر -->
+    <header class="sticky top-0 z-40 glass border-b border-slate-700">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold">
+                    ر
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg">أبلكيشن الردود</h1>
+                    <div class="flex items-center gap-1 text-xs text-slate-400">
+                        <span class="pulse-dot"></span>
+                        <span>متصل الآن</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="text-center">
+                    <div class="text-sm text-slate-300">الماسات</div>
+                    <div class="font-bold text-lg flex items-center gap-1" id="gemsCount">0</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- القسم الرئيسي -->
+    <main>
+        <!-- الهيرو -->
+        <section class="py-8 px-4">
+            <div class="container mx-auto">
+                <div class="flex flex-col lg:flex-row items-center gap-8">
+                    <div class="hero-left flex-1">
+                        <h1 class="text-4xl lg:text-5xl font-bold mb-4">
+                            شغل حقيقي — 
+                            <span class="gradient-text">قبض يومي</span>
+                        </h1>
+                        <p class="text-lg text-slate-300 mb-6">
+                            متوافق موبايل — تحميل سريع. رد على الرسائل واجمع ماسات تحولها الى فلوس
+                        </p>
+                        
+                        <div class="flex flex-wrap gap-3 mb-8">
+                            <div class="bg-slate-800/50 rounded-xl p-4 flex-1 min-w-[150px]">
+                                <div class="text-2xl font-bold gradient-text">1</div>
+                                <h3 class="font-bold mb-1">سجّل</h3>
+                                <p class="text-sm text-slate-400">إنشاء حساب بسيط بالموبايل في دقيقة.</p>
+                            </div>
+                            <div class="bg-slate-800/50 rounded-xl p-4 flex-1 min-w-[150px]">
+                                <div class="text-2xl font-bold gradient-text">2</div>
+                                <h3 class="font-bold mb-1">ردّ</h3>
+                                <p class="text-sm text-slate-400">كل رسالة هترد عليها تكسبك ماسات.</p>
+                            </div>
+                            <div class="bg-slate-800/50 rounded-xl p-4 flex-1 min-w-[150px]">
+                                <div class="text-2xl font-bold gradient-text">3</div>
+                                <h3 class="font-bold mb-1">اسحب</h3>
+                                <p class="text-sm text-slate-400">فودافون كاش، اتصالات كاش، اي محفظة— سحب يومي.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="font-bold text-lg mb-2">طرق السحب المدعومة</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 rounded-full bg-slate-800 text-sm">فودافون كاش</span>
+                                <span class="px-3 py-1 rounded-full bg-slate-800 text-sm">اتصالات كاش</span>
+                                <span class="px-3 py-1 rounded-full bg-slate-800 text-sm">أي محفظة</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button id="startBtn" class="px-6 py-3 rounded-xl bg-gradient-to-l from-indigo-500 to-cyan-400 text-slate-900 font-bold flex items-center justify-center gap-2">
+                                <span>تحميل التطبيق </span>
+                                <span>🔥</span>
+                            </button>
+                            <button id="demoBtn" class="px-6 py-3 rounded-xl glass text-white font-bold border border-slate-700">
+                                عايز   رسايل 
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4 text-xs text-slate-400">
+                            ملاحظة: بعد الضغط على "تحميل" هتتحوّل لعرض بسيط اشترك في الاشعارات — بعد ما تكمل هتقدر تحمل الأبلكيشن فورًا.
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 flex justify-center">
+                        <div class="relative w-64 h-[500px] bg-slate-800 rounded-[2rem] border-4 border-slate-700 p-4 overflow-hidden float">
+                            <!-- محاكاة الهاتف -->
+                            <div class="h-full flex flex-col">
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="text-xs text-slate-400">11:30</div>
+                                    <div class="flex gap-1">
+                                        <div class="w-2 h-2 rounded-full bg-slate-600"></div>
+                                        <div class="w-2 h-2 rounded-full bg-slate-600"></div>
+                                        <div class="w-2 h-2 rounded-full bg-slate-600"></div>
+                                    </div>
+                                </div>
+                                
+                                <div id="messages" class="flex-1 overflow-y-auto mb-4 space-y-4">
+                                    <!-- الرسائل ستظهر هنا -->
+                                    <div class="flex gap-3 items-start">
+                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">A</div>
+                                        <div class="bg-slate-700 p-3 rounded-xl max-w-[80%]">
+                                            ممكن تساعدني في طريقة الشحن؟
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-3 items-start justify-end">
+                                        <div class="bg-indigo-600 p-3 rounded-xl max-w-[80%]">
+                                            أكيد، تشرحلي نوع المشكلة؟
+                                        </div>
+                                        <div class="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center text-white font-bold text-sm">أنت</div>
+                                    </div>
+                                    <div class="flex gap-3 items-start">
+                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">B</div>
+                                        <div class="bg-slate-700 p-3 rounded-xl max-w-[80%]">
+                                            فين طريقة اظهار الكوبون؟
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex gap-2">
+                                    <input type="text" id="replyInput" placeholder="اكتب ردك هنا..." class="flex-1 bg-slate-700 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <button id="sendBtn" class="w-10 h-10 rounded-full bg-gradient-to-l from-indigo-500 to-cyan-400 flex items-center justify-center text-slate-900">
+                                        ➤
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- قسم الأسئلة -->
+        <section id="faq" class="py-12 px-4 bg-slate-800/30">
+            <div class="container mx-auto">
+                <h2 class="text-2xl font-bold text-center mb-8">أسئلة سريعة</h2>
+                <div class="max-w-2xl mx-auto space-y-4">
+                    <div class="glass rounded-xl p-4">
+                        <h3 class="font-bold mb-2">هل فعلاً هقبض؟</h3>
+                        <p class="text-slate-300">أيوه — السحب يومي على المحافظ المشهورة، وإثباتات سحب موجودة.</p>
+                    </div>
+                    <div class="glass rounded-xl p-4">
+                        <h3 class="font-bold mb-2">محتاج جهاز قديم؟</h3>
+                        <p class="text-slate-300">لا — كل حاجة موبايل حديث أو متوسط يشتغل تمام.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- الفوتر -->
+    <footer class="py-6 px-4 border-t border-slate-800 text-center text-slate-400 text-sm">
+        <p>أبلكيشن الرد على الرسائل • جديد</p>
+    </footer>
+
+    <!-- المودال -->
+    <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+        <div class="bg-slate-800 rounded-2xl p-6 mx-4 max-w-md w-full glass border border-slate-700">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">فعّل حسابك دلوقتي</h3>
+                <button id="closeModal" class="text-slate-400 hover:text-white">✕</button>
+            </div>
+            
+            <div id="step1">
+                <p class="text-slate-300 mb-6">
+                    علشان نفعّل حسابك لازم تكمل خطوة تسجيل بسيطة — العرض هيشغّل صفحة التسجيل (عرض شريك).
+                </p>
+                
+                <div class="mb-6">
+                    <h4 class="font-bold mb-2">خطوات بسيطة:</h4>
+                    <ol class="list-decimal list-inside text-slate-300 space-y-2 text-sm">
+                        <li>هتفتح صفحة تفعيل العرض (صفحة شريك) — اتبع التعليمات اللي فيها.</li>
+                        <li>بعد إتمام العرض هترجع أوتوماتيك للصفحة وهتظهرلك زر تحميل التطبيق.</li>
+                        <li>لو حصل أي مشكلة اتصل بينا أو افتح دردشة الدعم.</li>
+                    </ol>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button id="confirmOffer" class="flex-1 px-4 py-3 rounded-xl bg-gradient-to-l from-indigo-500 to-cyan-400 text-slate-900 font-bold">
+                        اشترك في الاشعارات (مجاني)
+                    </button>
+                    <button id="cancelOffer" class="px-4 py-3 rounded-xl glass text-white border border-slate-700">
+                        إغلاق
+                    </button>
+                </div>
+                
+                <div class="mt-4 text-xs text-slate-400">
+                    مفيش مصاريف خفية — العرض مطلوب بس للتفعيل وضمان هوية الحساب.
+                </div>
+            </div>
+            
+            <div id="step2" class="hidden">
+                <div class="text-center mb-4">
+                    <div class="spinner mx-auto mb-4"></div>
+                    <h3 class="text-xl font-bold mb-2">جاري تجهيز حسابك</h3>
+                    <p class="text-slate-300 mb-4">نحن نجهز حسابك ونتأكد من تفعيل الاشتراك</p>
+                    
+                    <div class="progress-bar mb-2">
+                        <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="text-xs text-slate-400" id="progressText">جاري المعالجة...</div>
+                </div>
+            </div>
+            
+            <div id="step3" class="hidden">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">تم الاشتراك بنجاح!</h3>
+                    <p class="text-slate-300 mb-4">الآن يمكنك تحميل التطبيق والبدء في كسب المال</p>
+                    
+                    <div class="bg-slate-900 rounded-xl p-4 mb-4">
+                        <div class="text-sm text-slate-400 mb-2">كود تفعيل الربح:</div>
+                        <div class="flex items-center justify-between bg-slate-800 rounded-lg p-3">
+                            <code class="font-mono text-lg" id="activationCode">FYBHK4</code>
+                            <button id="copyCode" class="text-indigo-400 hover:text-indigo-300">
+                                نسخ
+                            </button>
+                        </div>
+                        <div class="text-xs text-slate-400 mt-2">استخدم هذا الكود داخل التطبيق لتفعيل ميزات الربح</div>
+                    </div>
+                    
+                    <a id="downloadNowBtn" href="#" class="block w-full px-4 py-3 rounded-xl bg-gradient-to-l from-indigo-500 to-cyan-400 text-slate-900 font-bold text-center">
+                        تحميل التطبيق الآن
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="successToast" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-5 py-3 rounded-full bg-green-500 text-white font-semibold shadow-lg hidden">
+        تم التفعيل بنجاح! يمكنك الآن تحميل التطبيق.
+    </div>
+
+    <script>
+        // ====== CONFIG (حط روابطك هنا) ====== //
+        // لو عندك رابط العرض (CPA) حط هنا
+        const OFFER_URL = "https://push7ot.blogspot.com"; // رابط العرض الجديد
+        
+        // لو عندك رابط تحميل التطبيق بعد التفعيل حط هنا
+        const DOWNLOAD_URL = "https://h5.touchchat.me/social/share/index-club-en.html?lg=ar&code=FYBHK4&gender=2&from=android&source=1&share_userid=146741149925&clone=4"; // رابط التحميل الجديد
+        
+        // مدة الانتظار قبل إظهار زر التحميل بعد الضغط على عرض التفعيل (بالملي ثانية)
+        const SHOW_DOWNLOAD_AFTER_MS = 30000; // 30 ثانية
+
+        // ====== العناصر ======
+        const startBtn = document.getElementById('startBtn');
+        const demoBtn = document.getElementById('demoBtn');
+        const modal = document.getElementById('modal');
+        const closeModal = document.getElementById('closeModal');
+        const confirmOffer = document.getElementById('confirmOffer');
+        const cancelOffer = document.getElementById('cancelOffer');
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const successToast = document.getElementById('successToast');
+        const sendBtn = document.getElementById('sendBtn');
+        const replyInput = document.getElementById('replyInput');
+        const messages = document.getElementById('messages');
+        const gemsCount = document.getElementById('gemsCount');
+        const downloadNowBtn = document.getElementById('downloadNowBtn');
+        const copyCode = document.getElementById('copyCode');
+        const activationCode = document.getElementById('activationCode');
+
+        // ====== Simple simulation of replying & earning gems ======
+        let gems = 0;
+
+        function addMessage(text, you=false) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex gap-3 ' + (you ? 'justify-end items-end' : 'items-start');
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ' + 
+                (you ? 'bg-slate-600' : 'bg-gradient-to-br from-indigo-500 to-cyan-400');
+            avatar.innerText = you ? 'أنت' : (text.includes('شحن') ? 'A' : 'B');
+            
+            const bubble = document.createElement('div');
+            bubble.className = (you ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-200') + 
+                ' p-3 rounded-xl max-w-[80%]';
+            bubble.innerText = text;
+            
+            if (you) {
+                wrapper.appendChild(bubble);
+                wrapper.appendChild(avatar);
+            } else {
+                wrapper.appendChild(avatar);
+                wrapper.appendChild(bubble);
+            }
+            
+            messages.appendChild(wrapper);
+            
+            // keep last 30 messages for performance
+            while (messages.children.length > 30) {
+                messages.removeChild(messages.firstChild);
+            }
+            
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Send reply button
+        sendBtn.addEventListener('click', () => {
+            const txt = replyInput.value.trim();
+            if (!txt) return;
+            
+            addMessage(txt, true);
+            replyInput.value = '';
+            
+            // increment gems randomly between 1 and 5 per reply (mimic country factor)
+            const earned = Math.floor(Math.random() * 5) + 1;
+            gems += earned;
+            gemsCount.innerText = gems;
+            
+            // show flying coin animation
+            showFlyingCoin(earned);
+            
+            // simulate incoming message
+            setTimeout(() => {
+                const responses = [
+                    'تمام! شكراً على الرد',
+                    'فهمت، هعمل كده',
+                    'تسلم إيدك',
+                    'مشكور على المساعدة',
+                    'تمام، هشوف كده'
+                ];
+                addMessage(responses[Math.floor(Math.random() * responses.length)]);
+            }, 800 + Math.random() * 800);
+        });
+
+        // Demo: give 5 quick replies and gems — ensure button works reliably
+        demoBtn.addEventListener('click', () => {
+            // التمرير إلى قسم المحادثة
+            document.getElementById('messages').scrollIntoView({ behavior: 'smooth' });
+            
+            if (demoBtn.disabled) return;
+            demoBtn.disabled = true;
+            demoBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i >= 5) {
+                    clearInterval(interval);
+                    demoBtn.disabled = false;
+                    demoBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                    return;
+                }
+                
+                const demoMessages = [
+                    'هقدر أساعدك ازاي؟',
+                    'تمام، فهمتك',
+                    'أكيد، هدلك على الطريقة',
+                    'مشكلة، هحاول أساعدك',
+                    'تمام، شكراً على التوضيح'
+                ];
+                
+                addMessage(demoMessages[i], true);
+                const earned = Math.floor(Math.random() * 4) + 1;
+                gems += earned;
+                gemsCount.innerText = gems;
+                showFlyingCoin(earned);
+                i++;
+            }, 500);
+        });
+
+        // show flying coin helper function
+        function showFlyingCoin(earned) {
+            const coin = document.createElement('div');
+            coin.className = 'coin fly fixed';
+            
+            // randomize horizontal position near the phone area
+            const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+            const rightPos = Math.min(Math.max(60 + Math.random() * 120, 60), viewportWidth - 80);
+            coin.style.right = rightPos + 'px';
+            coin.style.bottom = '90px';
+            coin.innerText = '+' + earned;
+            
+            document.body.appendChild(coin);
+            setTimeout(() => coin.remove(), 1100);
+        }
+
+        // Open modal function
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            step1.classList.remove('hidden');
+            step2.classList.add('hidden');
+            step3.classList.add('hidden');
+        }
+
+        function closeModalFn() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        startBtn.addEventListener('click', openModal);
+        closeModal.addEventListener('click', closeModalFn);
+        cancelOffer.addEventListener('click', closeModalFn);
+
+        // Confirm offer: open partner offer in new tab, then show download after 30 seconds
+        let downloadTimer = null;
+        let progressInterval = null;
+        let progress = 0;
+
+        confirmOffer.addEventListener('click', () => {
+            // prevent double clicks
+            if (confirmOffer.disabled) return;
+            confirmOffer.disabled = true;
+            confirmOffer.classList.add('opacity-60', 'cursor-not-allowed');
+
+            // الانتقال إلى الخطوة الثانية (شاشة التحميل)
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+            
+            // افتح صفحة العرض في تبويب جديد
+            try {
+                window.open(OFFER_URL, '_blank');
+            } catch(e) {
+                console.warn('تم محاولة فتح رابط العرض، لكن المتصفح منعها.');
+            }
+
+            // بدء عرض شريط التقدم
+            progress = 0;
+            progressFill.style.width = '0%';
+            progressText.textContent = 'جاري المعالجة...';
+            
+            progressInterval = setInterval(() => {
+                progress += 1;
+                progressFill.style.width = progress + '%';
+                
+                if (progress <= 30) {
+                    progressText.textContent = 'جاري تفعيل الاشتراك...';
+                } else if (progress <= 60) {
+                    progressText.textContent = 'جاري إنشاء حسابك...';
+                } else if (progress <= 90) {
+                    progressText.textContent = 'جاري تجهيز المكافآت...';
+                } else {
+                    progressText.textContent = 'جارٍ الانتهاء...';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                }
+            }, SHOW_DOWNLOAD_AFTER_MS / 100); // 30 ثانية مقسمة على 100 خطوة
+
+            // بعد 30 ثانية، الانتقال إلى الخطوة الثالثة
+            downloadTimer = setTimeout(() => {
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                
+                // الانتقال إلى الخطوة الثالثة
+                setTimeout(() => {
+                    step2.classList.add('hidden');
+                    step3.classList.remove('hidden');
+                    
+                    // تعيين كود التفعيل المحدد
+                    activationCode.textContent = 'FYBHK4';
+                    
+                    // إعادة تمكين الزر في حالة العودة
+                    confirmOffer.disabled = false;
+                    confirmOffer.classList.remove('opacity-60', 'cursor-not-allowed');
+                }, 500);
+            }, SHOW_DOWNLOAD_AFTER_MS);
+        });
+
+        // نسخ الكود
+        copyCode.addEventListener('click', () => {
+            const textArea = document.createElement('textarea');
+            textArea.value = activationCode.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // تغيير النص مؤقتاً للإشارة إلى النسخ
+            const originalText = copyCode.textContent;
+            copyCode.textContent = 'تم النسخ!';
+            setTimeout(() => {
+                copyCode.textContent = originalText;
+            }, 2000);
+        });
+
+        // تعيين رابط التحميل
+        downloadNowBtn.href = DOWNLOAD_URL;
+
+        // keyboard enter to send
+        replyInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendBtn.click();
+            }
+        });
+
+        // small UX: if user clicks outside modal close it
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModalFn();
+        });
+
+        // Clean up timers on unload
+        window.addEventListener('beforeunload', () => {
+            if (downloadTimer) clearTimeout(downloadTimer);
+            if (progressInterval) clearInterval(progressInterval);
+        });
+    </script>
+</body>
+</html>
